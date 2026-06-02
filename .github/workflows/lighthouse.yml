@@ -24,8 +24,13 @@ jobs:
       - name: Gerar Build de Produção
         run: npm run build
 
-      - name: Instalar Servidor Estático Globalmente
-        run: npm install -g lhci-cli@0.13.x
+      - name: Iniciar servidor Next em background
+        run: npm run start &
+        env:
+          PORT: 3000
+
+      - name: Esperar servidor subir
+        run: npx wait-on http://localhost:3000
 
       - name: Executar Auditoria do Lighthouse
         uses: treosh/lighthouse-ci-action@v12
@@ -34,3 +39,4 @@ jobs:
             http://localhost:3000/
           uploadArtifacts: true
           temporaryPublicStorage: true
+          runs: 3
