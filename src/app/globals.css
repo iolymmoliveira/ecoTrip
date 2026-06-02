@@ -1,26 +1,59 @@
 @import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-bg-main: var(--bg-main);
+  --color-bg-card: var(--bg-card);
+  --color-bg-card-secondary: var(--bg-card-secondary);
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-text-button: var(--text-button);
+  --color-border: var(--border);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root {
+  --bg-main: #f4fbf8; /* Fundo principal esverdeado bem claro */
+  --bg-card: #ffffff; /* Cards e inputs brancos */
+  --bg-card-secondary: #e8f5f1; /* Card "Simples/Personalizado" e seções */
+  --text-main: #0a2f24; /* Texto principal verde bem escuro */
+  --text-muted: #5a7a72; /* Texto secundário/descrições */
+  --primary: #22c55e; /* Botões verdes principais */
+  --primary-hover: #16a34a; /* Hover do botão */
+  --text-button: #ffffff; /* Texto do botão */
+  --border: #d1e7e0; /* Bordas sutis dos inputs/cards */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg-main: #06140d; /* Fundo principal verde quase preto */
+    --bg-card: #0e221a; /* Cards principais com leve destaque */
+    --bg-card-secondary: #122b21; /* Cards internos/inputs */
+    --text-main: #e2f5ed; /* Texto principal branco esverdeado */
+    --text-muted: #8a9e96; /* Texto secundário/cinza esverdeado */
+    --primary: #34d399; /* Botões e destaques verde neon */
+    --primary-hover: #10b981; /* Hover do botão */
+    --text-button: #06140d; /* Texto do botão fica escuro no dark */
+    --border: #1f3d32; /* Bordas dos cards/inputs no dark */
   }
 }
 
+.dark {
+  --bg-main: #06140d;
+  --bg-card: #0e221a;
+  --bg-card-secondary: #122b21;
+  --text-main: #e2f5ed;
+  --text-muted: #8a9e96;
+  --primary: #34d399;
+  --primary-hover: #10b981;
+  --text-button: #06140d;
+  --border: #1f3d32;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
