@@ -1,4 +1,7 @@
+/// <reference types="jest" />
 import { render, screen } from '@testing-library/react';
+import { expect as jestExpect } from '@jest/globals';
+declare const expect: typeof jestExpect;
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { ThemeProvider, useTheme } from './ThemeContext';
@@ -29,7 +32,7 @@ describe('ThemeContext', () => {
     );
 
     const status = screen.getByTestId('theme-status');
-    expect(status).toHaveTextContent('light');
+    expect(status.textContent).toBe('light');
     expect(document.documentElement.classList.contains('dark')).toBe(false);
   });
 
@@ -44,12 +47,12 @@ describe('ThemeContext', () => {
     const status = screen.getByTestId('theme-status');
 
     await userEvent.click(toggleButton);
-    expect(status).toHaveTextContent('dark');
+    expect(status.textContent).toBe('dark');
     expect(document.documentElement.classList.contains('dark')).toBe(true);
     expect(localStorage.getItem('ecotrip-theme')).toBe('dark');
 
     await userEvent.click(toggleButton);
-    expect(status).toHaveTextContent('light');
+    expect(status.textContent).toBe('light');
     expect(document.documentElement.classList.contains('dark')).toBe(false);
     expect(localStorage.getItem('ecotrip-theme')).toBe('light');
   });
