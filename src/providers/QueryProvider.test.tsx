@@ -1,8 +1,4 @@
-/// <reference types="jest" />
 import { render, screen } from '@testing-library/react';
-import { expect as jestExpect } from '@jest/globals';
-declare const expect: typeof jestExpect;
-import '@testing-library/jest-dom';
 import { QueryProvider } from './QueryProvider';
 
 describe('QueryProvider', () => {

@@ -7,42 +7,51 @@ type Theme = 'light' | 'dark';
 interface ThemeContextType {
   theme: Theme;
   toggleTheme: () => void;
+  mounted: boolean;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem('ecotrip-theme') as Theme | null;
-      if (savedTheme) return savedTheme;
+const getInitialTheme = (): Theme => {
+  if (typeof window === 'undefined') return 'light';
+  const savedTheme = localStorage.getItem('ecotrip-theme') as Theme | null;
 
-      const systemPrefersDark = window.matchMedia(
-        '(prefers-color-scheme: dark)',
-      ).matches;
-      return systemPrefersDark ? 'dark' : 'light';
-    }
-    return 'light';
-  });
+  if (savedTheme) return savedTheme;
+  const systemPrefersDark = window.matchMedia(
+    '(prefers-color-scheme: dark)',
+  ).matches;
+
+  return systemPrefersDark ? 'dark' : 'light';
+};
+
+export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
+  const [mounted, setMounted] = useState(false);
+  const [theme, setTheme] = useState<Theme>('light');
 
   useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [theme]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setTheme(getInitialTheme());
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    localStorage.setItem('ecotrip-theme', theme);
+  }, [theme, mounted]);
 
   const toggleTheme = () => {
-    const nextTheme: Theme = theme === 'light' ? 'dark' : 'light';
-    setTheme(nextTheme);
-    localStorage.setItem('ecotrip-theme', nextTheme);
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider
+      value={{
+        theme,
+        toggleTheme,
+        mounted,
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   );
@@ -50,7 +59,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
 
 export const useTheme = (): ThemeContextType => {
   const context = useContext(ThemeContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useTheme deve ser utilizado dentro de um ThemeProvider');
   }
   return context;

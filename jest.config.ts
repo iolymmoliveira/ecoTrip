@@ -11,6 +11,7 @@ const config: Config = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^framer-motion$': '<rootDir>/src/tests/mocks/framer-motion.tsx',
   },
 };
 
