@@ -4,6 +4,9 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import { copy } from '@/lib/copy';
 import './globals.css';
 import { QueryProvider } from '@/providers/QueryProvider';
+import Script from 'next/script';
+import { Header } from '@/components/organisms/Header';
+import { themeScript } from '@/lib/themeScript';
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -26,25 +29,18 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              try {
-                const saved = localStorage.getItem('ecotrip-theme');
-                const system = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (saved === 'dark' || (!saved && system)) {
-                  document.documentElement.classList.add('dark');
-                } else {
-                  document.documentElement.classList.remove('dark');
-                }
-              } catch (_) {}
-            `,
-          }}
+        <Script
+          id="theme-script"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: themeScript }}
         />
       </head>
       <body suppressHydrationWarning>
         <QueryProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider>
+            <Header />
+            <main className="flex-1 w-full">{children}</main>
+          </ThemeProvider>
         </QueryProvider>
       </body>
     </html>

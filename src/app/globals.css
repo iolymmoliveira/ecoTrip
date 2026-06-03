@@ -24,20 +24,6 @@
   --border: #d1e7e0; /* Bordas sutis dos inputs/cards */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-main: #06140d; /* Fundo principal verde quase preto */
-    --bg-card: #0e221a; /* Cards principais com leve destaque */
-    --bg-card-secondary: #122b21; /* Cards internos/inputs */
-    --text-main: #e2f5ed; /* Texto principal branco esverdeado */
-    --text-muted: #8a9e96; /* Texto secundário/cinza esverdeado */
-    --primary: #34d399; /* Botões e destaques verde neon */
-    --primary-hover: #10b981; /* Hover do botão */
-    --text-button: #06140d; /* Texto do botão fica escuro no dark */
-    --border: #1f3d32; /* Bordas dos cards/inputs no dark */
-  }
-}
-
 .dark {
   --bg-main: #06140d;
   --bg-card: #0e221a;
