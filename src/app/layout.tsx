@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { copy } from '@/lib/copy';
 import './globals.css';
+import { QueryProvider } from '@/providers/QueryProvider';
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -42,7 +43,9 @@ export default function RootLayout({
         />
       </head>
       <body suppressHydrationWarning>
-        <ThemeProvider>{children}</ThemeProvider>
+        <QueryProvider>
+          <ThemeProvider>{children}</ThemeProvider>
+        </QueryProvider>
       </body>
     </html>
   );

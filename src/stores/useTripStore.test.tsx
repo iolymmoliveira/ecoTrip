@@ -2,7 +2,6 @@ import { useTripStore } from './useTripStore';
 
 describe('useTripStore (Zustand)', () => {
   beforeEach(() => {
-    // Reseta o estado do store antes de cada teste
     useTripStore.getState().resetCalculator();
   });
 
