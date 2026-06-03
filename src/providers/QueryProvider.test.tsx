@@ -1,4 +1,7 @@
+/// <reference types="jest" />
 import { render, screen } from '@testing-library/react';
+import { expect as jestExpect } from '@jest/globals';
+declare const expect: typeof jestExpect;
 import '@testing-library/jest-dom';
 import { QueryProvider } from './QueryProvider';
 
@@ -11,7 +14,7 @@ describe('QueryProvider', () => {
     );
 
     const child = screen.getByTestId('child-element');
-    expect(child).toBeInTheDocument();
-    expect(child).toHaveTextContent('Conteúdo Seguro do App');
+    expect(child).not.toBeNull();
+    expect(child.textContent).toBe('Conteúdo Seguro do App');
   });
 });
