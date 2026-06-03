@@ -1,7 +1,4 @@
-/// <reference types="jest" />
 import { useTripStore } from './useTripStore';
-import { expect as jestExpect } from '@jest/globals';
-declare const expect: typeof jestExpect;
 
 describe('useTripStore (Zustand)', () => {
   beforeEach(() => {

@@ -7,6 +7,7 @@ import { QueryProvider } from '@/providers/QueryProvider';
 import Script from 'next/script';
 import { Header } from '@/components/organisms/Header';
 import { themeScript } from '@/lib/themeScript';
+import { Footer } from '@/components/organisms/Footer';
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -35,11 +36,12 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: themeScript }}
         />
       </head>
-      <body suppressHydrationWarning>
+      <body suppressHydrationWarning className="flex flex-col min-h-screen">
         <QueryProvider>
           <ThemeProvider>
             <Header />
             <main className="flex-1 w-full">{children}</main>
+            <Footer />
           </ThemeProvider>
         </QueryProvider>
       </body>
