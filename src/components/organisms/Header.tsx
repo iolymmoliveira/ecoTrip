@@ -5,10 +5,9 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { Leaf, Sun, Moon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { ThemeToggle } from '../atoms/ThemeToggle';
 
 export const Header: React.FC = () => {
-  const { theme, toggleTheme, mounted } = useTheme();
-
   return (
     <header
       data-testid="app-header"
@@ -16,7 +15,7 @@ export const Header: React.FC = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <Link
-          href="#"
+          href="/"
           className="flex items-center gap-2 group focus:outline-none focus:ring-2 focus:ring-(--primary) rounded-lg p-1"
           aria-label="EcoTrip Página Inicial"
           data-testid="logo-link"
@@ -34,23 +33,7 @@ export const Header: React.FC = () => {
         </Link>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-xl hover:bg-(--bg-card-secondary) text-(--text-muted) hover:text-(--text-main) transition-all focus:outline-none focus:ring-2 focus:ring-(--primary)"
-            aria-label={
-              mounted && theme === 'dark'
-                ? 'Ativar Modo Claro'
-                : 'Ativar Modo Escuro'
-            }
-            data-testid="theme-toggle"
-            id="theme-toggle-btn"
-          >
-            {mounted && theme === 'dark' ? (
-              <Sun className="h-5 w-5 text-amber-400 animate-pulse" />
-            ) : (
-              <Moon className="h-5 w-5 text-slate-700 hover:rotate-12 transition-transform" />
-            )}
-          </button>
+          <ThemeToggle />
 
           <Link
             href="https://github.com/iolymmoliveira/ecoTrip/"

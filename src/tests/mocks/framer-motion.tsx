@@ -36,3 +36,11 @@ motion.a = (
 };
 
 export { motion };
+
+export const AnimatePresence = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  return <>{children}</>;
+};
