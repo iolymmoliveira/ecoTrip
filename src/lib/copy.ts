@@ -17,6 +17,10 @@ export interface CopyStrings {
     description: string;
     ogImage: string;
   };
+  links: {
+    github: string;
+    linkedIn: string;
+  };
 }
 
 export const copy: CopyStrings = {
@@ -40,5 +44,9 @@ export const copy: CopyStrings = {
     description:
       'Calcule o CO2 da sua viagem e descubra opções mais sustentáveis. Compare carros, ônibus, trem e avião.',
     ogImage: '/og-image.png',
+  },
+  links: {
+    github: 'https://github.com/iolymmoliveira',
+    linkedIn: 'https://www.linkedin.com/in/iolymmoliveira',
   },
 };

@@ -4,10 +4,9 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import { copy } from '@/lib/copy';
 import './globals.css';
 import { QueryProvider } from '@/providers/QueryProvider';
-import Script from 'next/script';
 import { Header } from '@/components/organisms/Header';
-import { themeScript } from '@/lib/themeScript';
 import { Footer } from '@/components/organisms/Footer';
+import { ThemeScript } from '@/components/atoms/ThemeScript';
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -30,11 +29,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
-        <Script
-          id="theme-script"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{ __html: themeScript }}
-        />
+        <ThemeScript />
       </head>
       <body suppressHydrationWarning className="flex flex-col min-h-screen">
         <QueryProvider>

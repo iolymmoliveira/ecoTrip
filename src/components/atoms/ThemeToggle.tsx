@@ -3,7 +3,21 @@
 import React from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Sun, Moon } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
+
+const sunVariants: Variants = {
+  initial: { opacity: 0, rotate: -90, scale: 0.6 },
+  animate: { opacity: 1, rotate: 0, scale: 1 },
+  exit: { opacity: 0, rotate: 90, scale: 0.6 },
+};
+
+const moonVariants: Variants = {
+  initial: { opacity: 0, rotate: 90, scale: 0.6 },
+  animate: { opacity: 1, rotate: 0, scale: 1 },
+  exit: { opacity: 0, rotate: -90, scale: 0.6 },
+};
+
+const iconTransition = { duration: 0.2, ease: 'easeInOut' } as const;
 
 export const ThemeToggle: React.FC = () => {
   const { theme, toggleTheme, mounted } = useTheme();
@@ -23,10 +37,11 @@ export const ThemeToggle: React.FC = () => {
         {isDark ? (
           <motion.div
             key="sun"
-            initial={{ opacity: 0, rotate: -90, scale: 0.6 }}
-            animate={{ opacity: 1, rotate: 0, scale: 1 }}
-            exit={{ opacity: 0, rotate: 90, scale: 0.6 }}
-            transition={{ duration: 0.2, ease: 'easeInOut' }}
+            variants={sunVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={iconTransition}
             className="flex items-center justify-center text-amber-400"
           >
             <Sun className="h-5 w-5 fill-amber-400/10 animate-pulse" />
@@ -34,10 +49,11 @@ export const ThemeToggle: React.FC = () => {
         ) : (
           <motion.div
             key="moon"
-            initial={{ opacity: 0, rotate: 90, scale: 0.6 }}
-            animate={{ opacity: 1, rotate: 0, scale: 1 }}
-            exit={{ opacity: 0, rotate: -90, scale: 0.6 }}
-            transition={{ duration: 0.2, ease: 'easeInOut' }}
+            variants={moonVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={iconTransition}
             className="flex items-center justify-center text-slate-700"
           >
             <Moon className="h-5 w-5 fill-slate-700/10" />
