@@ -35,4 +35,13 @@ motion.a = (
   return <a {...cleanProps}>{props.children}</a>;
 };
 
+motion.create = motion;
 export { motion };
+
+export const AnimatePresence = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  return <>{children}</>;
+};
