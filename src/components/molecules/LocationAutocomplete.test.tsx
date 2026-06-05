@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/dom';
 import { LocationAutocomplete } from './LocationAutocomplete';
 import { usePlaceAutocomplete } from '@/hooks/usePlaceAutocomplete';
 
@@ -15,18 +16,17 @@ describe('LocationAutocomplete', () => {
     label: 'Origem',
     placeholder: 'Digite o endereço de partida',
     onAddressSelect: mockOnAddressSelect,
-    debounceTime: 300,
+    countryCodes: ['BR'],
+    debounceTime: 700,
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('deve exibir o estado de carregamento quando a API do Google não estiver pronta', () => {
+  it('deve renderizar o label e o input corretamente associados por acessibilidade', () => {
     mockUsePlaceAutocomplete.mockReturnValue({
       inputValue: '',
-      isLoaded: false,
-      loadError: false,
       isSearching: false,
       suggestions: [],
       showSuggestions: false,
@@ -36,30 +36,17 @@ describe('LocationAutocomplete', () => {
     });
 
     render(<LocationAutocomplete {...defaultProps} />);
-    expect(screen.getByText('Carregando localizações...')).toBeInTheDocument();
-    expect(
-      screen.queryByPlaceholderText(defaultProps.placeholder),
-    ).not.toBeInTheDocument();
-  });
 
-  it('deve renderizar o input corretamente quando a API estiver carregada', () => {
-    mockUsePlaceAutocomplete.mockReturnValue({
-      inputValue: '',
-      isLoaded: true,
-      loadError: false,
-      isSearching: false,
-      suggestions: [],
-      showSuggestions: false,
-      setShowSuggestions: jest.fn(),
-      handleInputChange: jest.fn(),
-      handleSuggestionSelect: jest.fn(),
-    });
+    const labelElement = screen.getByText(defaultProps.label);
+    const inputElement = screen.getByPlaceholderText(defaultProps.placeholder);
 
-    render(<LocationAutocomplete {...defaultProps} />);
-    expect(screen.getByText(defaultProps.label)).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText(defaultProps.placeholder),
-    ).toBeInTheDocument();
+    expect(labelElement).toBeInTheDocument();
+    expect(inputElement).toBeInTheDocument();
+    expect(inputElement).toHaveAttribute('id');
+    expect(labelElement).toHaveAttribute(
+      'for',
+      inputElement.getAttribute('id'),
+    );
   });
 
   it('deve chamar handleInputChange quando o usuário digitar no campo', () => {
@@ -67,8 +54,6 @@ describe('LocationAutocomplete', () => {
 
     mockUsePlaceAutocomplete.mockReturnValue({
       inputValue: '',
-      isLoaded: true,
-      loadError: false,
       isSearching: false,
       suggestions: [],
       showSuggestions: false,
@@ -83,20 +68,49 @@ describe('LocationAutocomplete', () => {
     expect(mockHandleInputChange).toHaveBeenCalledWith('Curitiba');
   });
 
-  it('deve exibir a lista de sugestões e disparar a seleção ao clicar em um item', () => {
-    const mockHandleSuggestionSelect = jest.fn();
+  it('deve exibir a lista de sugestões com os atributos ARIA corretos', () => {
     const mockSuggestions = [
       {
-        id: '1-xyz',
+        id: 'google-0-abc',
         text: 'Avenida Batel, Curitiba - PR',
-        prediction: {} as google.maps.places.PlacePrediction,
+        lat: -25.4431,
+        lng: -49.2829,
       },
     ];
 
     mockUsePlaceAutocomplete.mockReturnValue({
       inputValue: 'Avenida',
-      isLoaded: true,
-      loadError: false,
+      isSearching: false,
+      suggestions: mockSuggestions,
+      showSuggestions: true,
+      setShowSuggestions: jest.fn(),
+      handleInputChange: jest.fn(),
+      handleSuggestionSelect: jest.fn(),
+    });
+
+    render(<LocationAutocomplete {...defaultProps} />);
+
+    const listbox = screen.getByRole('listbox');
+    expect(listbox).toBeInTheDocument();
+
+    const option = screen.getByRole('option', { name: /Avenida Batel/i });
+    expect(option).toBeInTheDocument();
+    expect(option).toHaveAttribute('aria-selected', 'false');
+  });
+
+  it('deve disparar handleSuggestionSelect ao clicar em um item da lista', () => {
+    const mockHandleSuggestionSelect = jest.fn();
+    const mockSuggestions = [
+      {
+        id: 'osm-123-xyz',
+        text: 'Rua XV de Novembro, Curitiba - PR',
+        lat: -25.4284,
+        lng: -49.2733,
+      },
+    ];
+
+    mockUsePlaceAutocomplete.mockReturnValue({
+      inputValue: 'Rua XV',
       isSearching: false,
       suggestions: mockSuggestions,
       showSuggestions: true,
@@ -106,9 +120,8 @@ describe('LocationAutocomplete', () => {
     });
 
     render(<LocationAutocomplete {...defaultProps} />);
-    const buttonSuggestion = screen.getByText('Avenida Batel, Curitiba - PR');
-    expect(buttonSuggestion).toBeInTheDocument();
-    fireEvent.click(buttonSuggestion);
+    const option = screen.getByRole('option', { name: /Rua XV de Novembro/i });
+    fireEvent.click(option);
     expect(mockHandleSuggestionSelect).toHaveBeenCalledWith(mockSuggestions[0]);
   });
 });
