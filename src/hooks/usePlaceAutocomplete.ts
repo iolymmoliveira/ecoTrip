@@ -14,10 +14,12 @@ interface UsePlaceAutocompleteProps {
     address: string,
     coordinates: { lat: number; lng: number },
   ) => void;
+  debounceTime?: number;
 }
 
 export const usePlaceAutocomplete = ({
   onAddressSelect,
+  debounceTime = 300,
 }: UsePlaceAutocompleteProps) => {
   const [inputValue, setInputValue] = useState('');
   const [isLoaded, setIsLoaded] = useState(false);
@@ -25,9 +27,10 @@ export const usePlaceAutocomplete = ({
   const [isSearching, setIsSearching] = useState(false);
   const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const isMountedRef = useRef(true);
+  const sessionTokenRef =
+    useRef<google.maps.places.AutocompleteSessionToken | null>(null);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -42,7 +45,11 @@ export const usePlaceAutocomplete = ({
 
         await loader.importLibrary('places');
 
-        if (isMountedRef.current) setIsLoaded(true);
+        if (isMountedRef.current) {
+          sessionTokenRef.current =
+            new google.maps.places.AutocompleteSessionToken();
+          setIsLoaded(true);
+        }
       } catch (error) {
         console.error('Erro ao carregar Places API:', error);
         if (isMountedRef.current) setLoadError(true);
@@ -71,6 +78,7 @@ export const usePlaceAutocomplete = ({
           {
             input: query,
             includedRegionCodes: ['BR'],
+            sessionToken: sessionTokenRef.current ?? undefined,
           },
         );
 
@@ -107,13 +115,15 @@ export const usePlaceAutocomplete = ({
 
     debounceRef.current = setTimeout(() => {
       searchPlaces(value);
-    }, 300);
+    }, debounceTime);
   };
 
   const handleSuggestionSelect = async (suggestion: SuggestionItem) => {
     try {
       const place = suggestion.prediction.toPlace();
-      await place.fetchFields({ fields: ['formattedAddress', 'location'] });
+      await place.fetchFields({
+        fields: ['formattedAddress', 'location'],
+      });
 
       if (!isMountedRef.current) return;
 
@@ -126,6 +136,9 @@ export const usePlaceAutocomplete = ({
       setInputValue(address);
       setShowSuggestions(false);
       onAddressSelect(address, { lat, lng });
+
+      sessionTokenRef.current =
+        new google.maps.places.AutocompleteSessionToken();
     } catch (error) {
       console.error('Erro ao selecionar local:', error);
     }

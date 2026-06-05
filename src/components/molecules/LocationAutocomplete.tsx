@@ -11,6 +11,7 @@ interface LocationAutocompleteProps {
     address: string,
     coordinates: { lat: number; lng: number },
   ) => void;
+  debounceTime?: number;
   testId?: string;
 }
 
@@ -18,6 +19,7 @@ export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({
   label,
   placeholder,
   onAddressSelect,
+  debounceTime = 300,
   testId = 'location-autocomplete',
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -32,7 +34,7 @@ export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({
     setShowSuggestions,
     handleInputChange,
     handleSuggestionSelect,
-  } = usePlaceAutocomplete({ onAddressSelect });
+  } = usePlaceAutocomplete({ onAddressSelect, debounceTime });
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

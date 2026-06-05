@@ -15,6 +15,7 @@ describe('LocationAutocomplete', () => {
     label: 'Origem',
     placeholder: 'Digite o endereço de partida',
     onAddressSelect: mockOnAddressSelect,
+    debounceTime: 300,
   };
 
   beforeEach(() => {
@@ -35,9 +36,7 @@ describe('LocationAutocomplete', () => {
     });
 
     render(<LocationAutocomplete {...defaultProps} />);
-    expect(
-      screen.getByText('Carregando localizaciones...'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Carregando localizações...')).toBeInTheDocument();
     expect(
       screen.queryByPlaceholderText(defaultProps.placeholder),
     ).not.toBeInTheDocument();
