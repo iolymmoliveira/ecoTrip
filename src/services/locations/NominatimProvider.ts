@@ -16,4 +16,11 @@ export class NominatimProvider implements LocationProvider {
 
     return response.json();
   }
+
+  async reverseGeocode(lat: number, lng: number): Promise<string> {
+    const response = await fetch(`/api/geocode-reverse?lat=${lat}&lng=${lng}`);
+    if (!response.ok) throw new Error('Failed to reverse geocode');
+    const data = await response.json();
+    return data.address;
+  }
 }

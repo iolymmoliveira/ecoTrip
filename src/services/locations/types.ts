@@ -8,3 +8,7 @@ export interface LocationSuggestion {
 export interface LocationProvider {
   search(query: string, countryCodes: string[]): Promise<LocationSuggestion[]>;
 }
+
+export interface ReverseGeocodeResult {
+  address: string;
+}

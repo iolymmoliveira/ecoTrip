@@ -2,7 +2,9 @@
 import {
   TransportSelector,
   LocationAutocomplete,
+  InteractiveMap,
 } from '@/components/molecules';
+import { MapContainer, Marker, TileLayer } from 'react-leaflet';
 
 export default function Home() {
   const handleAddressSelect = (
@@ -14,7 +16,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col flex-1 items-center justify-center">
+    <div className="flex flex-col flex-1 items-center justify-center  w-full max-w-4xl mx-auto">
       <TransportSelector />
       <br />
       <LocationAutocomplete
@@ -22,6 +24,10 @@ export default function Home() {
         placeholder="Digite o local de partida..."
         onAddressSelect={handleAddressSelect}
       />
+      <br />
+      <div className="w-full">
+        <InteractiveMap target="origin" />
+      </div>
     </div>
   );
 }
