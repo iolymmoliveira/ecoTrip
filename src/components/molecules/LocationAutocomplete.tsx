@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useId } from 'react';
 import { Loader2, MapPin } from 'lucide-react';
 import { usePlaceAutocomplete } from '@/hooks/usePlaceAutocomplete';
+import { useTripStore } from '@/stores/useTripStore';
 
 interface LocationAutocompleteProps {
   label: string;
@@ -17,6 +18,7 @@ interface LocationAutocompleteProps {
   countryCodes?: string[];
   debounceTime?: number;
   testId?: string;
+  target?: 'origin' | 'destination';
 }
 
 export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({
@@ -26,6 +28,7 @@ export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({
   countryCodes = ['BR'],
   debounceTime = 700,
   testId = 'location-autocomplete',
+  target,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const inputId = useId();
@@ -43,6 +46,10 @@ export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({
     countryCodes,
     debounceTime,
   });
+
+  const setSelectedLocationTarget = useTripStore(
+    (state) => state.setSelectedLocationTarget,
+  );
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -90,9 +97,8 @@ export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({
           data-testid={`${testId}-input`}
           onChange={(event) => handleInputChange(event.target.value)}
           onFocus={() => {
-            if (suggestions.length > 0) {
-              setShowSuggestions(true);
-            }
+            if (target) setSelectedLocationTarget(target);
+            if (suggestions.length > 0) setShowSuggestions(true);
           }}
           className="
             w-full

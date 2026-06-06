@@ -3,6 +3,8 @@ import dynamic from 'next/dynamic';
 import React from 'react';
 
 export { TransportSelector } from './TransportSelector';
+export { CalculatorModeSelector } from './CalculatorModeSelector';
+export { TransportComparisonSelector } from './TransportComparisonSelector';
 
 export const LocationAutocomplete = dynamic(
   () =>

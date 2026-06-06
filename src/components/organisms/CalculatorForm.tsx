@@ -1,22 +1,24 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Calculator } from 'lucide-react';
 import { CalculatorInputs, calculatorSchema } from '@/schemas/calculator';
 import { useTripStore } from '@/stores/useTripStore';
-import { Calculator } from 'lucide-react';
-import { LocationAutocomplete, TransportSelector } from '../molecules';
 import { copy } from '@/lib/copy';
+import { TRANSPORT_RULES, FUEL_OPTIONS } from '@/lib/constants/transports';
 import { Button } from '../atoms/Button';
+import { z } from 'zod';
+import {
+  LocationAutocomplete,
+  TransportSelector,
+  CalculatorModeSelector,
+  TransportComparisonSelector,
+} from '../molecules';
 
-interface FormInputs {
-  mode: 'simple' | 'custom';
-  origin: CalculatorInputs['origin'] | null;
-  destination: CalculatorInputs['destination'] | null;
-  passengers: number;
-  distanceOverride?: number;
-}
+type FormInputs = z.input<typeof calculatorSchema>;
+type FormOutput = z.output<typeof calculatorSchema>;
 
 interface CalculatorFormProps {
   onCalculate: (data: CalculatorInputs) => Promise<void> | void;
@@ -27,16 +29,27 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
 }) => {
   const {
     mode,
+    currentTransport,
     origin,
     destination,
     passengers,
+    weightPerPerson,
+    luggageWeight,
+    fuelType,
+    compareTransport,
+    comparisonTransports,
     distanceOverride,
     setOrigin,
     setDestination,
     setPassengers,
-    setDistanceOverride,
+    setWeightPerPerson,
+    setLuggageWeight,
+    setFuelType,
+    setCompareTransport,
     isCalculating,
   } = useTripStore();
+
+  const transportRule = TRANSPORT_RULES[currentTransport];
 
   const {
     handleSubmit,
@@ -51,15 +64,42 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
       origin,
       destination,
       passengers,
+      weightPerPerson,
+      luggageWeight,
+      fuelType,
       distanceOverride,
     },
   });
 
+  useEffect(() => {
+    setValue('mode', mode);
+  }, [mode, setValue]);
+
+  useEffect(() => {
+    if (passengers > transportRule.maxPassengers) {
+      setPassengers(transportRule.maxPassengers);
+      setValue('passengers', transportRule.maxPassengers);
+    }
+  }, [
+    currentTransport,
+    passengers,
+    transportRule.maxPassengers,
+    setPassengers,
+    setValue,
+  ]);
+
   const handleOriginSelect = (
     address: string,
-    coords: { lat: number; lng: number },
+    coords: {
+      lat: number;
+      lng: number;
+    },
   ) => {
-    const originData = { address, latitude: coords.lat, longitude: coords.lng };
+    const originData = {
+      address,
+      latitude: coords.lat,
+      longitude: coords.lng,
+    };
     setOrigin(originData);
     setValue('origin', originData);
     clearErrors('origin');
@@ -67,7 +107,10 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
 
   const handleDestinationSelect = (
     address: string,
-    coords: { lat: number; lng: number },
+    coords: {
+      lat: number;
+      lng: number;
+    },
   ) => {
     const destinationData = {
       address,
@@ -79,9 +122,14 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
     clearErrors('destination');
   };
 
-  const onSubmit = async (data: FormInputs) => {
+  const onSubmit = async (data: FormOutput) => {
     try {
-      await onCalculate(data as CalculatorInputs);
+      await onCalculate({
+        ...data,
+        currentTransport,
+        compareTransport,
+        comparisonTransports,
+      } as CalculatorInputs);
     } catch {
       setError('root', {
         type: 'manual',
@@ -90,31 +138,33 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
     }
   };
 
-  React.useEffect(() => {
-    setValue('mode', mode);
-  }, [mode, setValue]);
-
   const activeError =
     errors.origin?.message ||
     errors.destination?.message ||
     errors.passengers?.message ||
-    errors.distanceOverride?.message ||
+    errors.weightPerPerson?.message ||
+    errors.luggageWeight?.message ||
     errors.root?.message;
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex w-full flex-col gap-5 font-sans"
+      className="flex w-full flex-col gap-6 font-sans"
       noValidate
     >
-      <div className="flex flex-col gap-4 md:flex-row md:items-start">
+      <CalculatorModeSelector />
+
+      <div className="flex flex-col gap-4 md:flex-row">
         <LocationAutocomplete
+          target="origin"
           label="Origem"
           placeholder="Cidade, rua ou ponto de partida..."
           onAddressSelect={handleOriginSelect}
           testId="form-origin"
         />
+
         <LocationAutocomplete
+          target="destination"
           label="Destino"
           placeholder="Cidade, rua ou ponto de chegada..."
           onAddressSelect={handleDestinationSelect}
@@ -125,65 +175,122 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
       <TransportSelector />
 
       {mode === 'custom' && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 animate-fadeIn">
+        <div className="grid gap-4 animate-fadeIn md:grid-cols-2">
           <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="passengers-input"
-              className="text-sm font-medium text-(--text-main)"
-            >
-              Nº de Passageiros
+            <label className="text-sm font-medium text-(--text-main)">
+              Passageiros
             </label>
+
             <input
-              id="passengers-input"
               type="number"
               min={1}
-              max={100}
+              max={transportRule.maxPassengers}
               value={passengers}
               onChange={(e) => {
-                const val = parseInt(e.target.value, 10) || 1;
-                setPassengers(val);
-                setValue('passengers', val);
+                const value = Number(e.target.value) || 1;
+                const safeValue = Math.min(value, transportRule.maxPassengers);
+                setPassengers(safeValue);
+                setValue('passengers', safeValue);
               }}
-              className="w-full rounded-xl border border-(--border) bg-(--bg-card) px-3 py-2.5 text-sm text-(--text-main) outline-none transition-all focus:ring-2 focus:ring-(--primary)"
+              className="w-full rounded-xl border border-(--border) bg-(--bg-card) px-3 py-2.5"
             />
+
+            <span className="text-xs text-(--text-muted)">
+              Máximo: {transportRule.maxPassengers}
+            </span>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="distance-input"
-              className="text-sm font-medium text-(--text-main)"
-            >
-              Distância Manual (km){' '}
-              <span className="text-xs text-(--text-muted)">(Opcional)</span>
-            </label>
-            <input
-              id="distance-input"
-              type="number"
-              min={0}
-              placeholder="Ex: 450"
-              value={distanceOverride ?? ''}
-              onChange={(e) => {
-                const val =
-                  e.target.value === '' ? undefined : Number(e.target.value);
-                setDistanceOverride(val);
-                setValue('distanceOverride', val);
-              }}
-              className="w-full rounded-xl border border-(--border) bg-(--bg-card) px-3 py-2.5 text-sm text-(--text-main) outline-none transition-all focus:ring-2 focus:ring-(--primary)"
-            />
-          </div>
+          {transportRule.supportsFuel && (
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-(--text-main)">
+                Combustível
+              </label>
+
+              <select
+                value={fuelType ?? ''}
+                onChange={(e) => {
+                  setFuelType(e.target.value);
+                  setValue('fuelType', e.target.value);
+                }}
+                className="w-full rounded-xl border border-(--border) bg-(--bg-card) px-3 py-2.5"
+              >
+                <option value="">Selecione</option>
+
+                {FUEL_OPTIONS.map((fuel) => (
+                  <option key={fuel} value={fuel}>
+                    {fuel}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {transportRule.supportsWeightPerPerson && (
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-(--text-main)">
+                Peso por pessoa (kg)
+              </label>
+
+              <input
+                type="number"
+                min={0}
+                value={weightPerPerson ?? ''}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  setWeightPerPerson(value);
+                  setValue('weightPerPerson', value);
+                }}
+                className="w-full rounded-xl border border-(--border) bg-(--bg-card) px-3 py-2.5"
+              />
+            </div>
+          )}
+
+          {transportRule.supportsLuggage && (
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-(--text-main)">
+                Peso da mala (kg)
+              </label>
+
+              <input
+                type="number"
+                min={0}
+                value={luggageWeight ?? ''}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  setLuggageWeight(value);
+                  setValue('luggageWeight', value);
+                }}
+                className="w-full rounded-xl border border-(--border) bg-(--bg-card) px-3 py-2.5"
+              />
+            </div>
+          )}
         </div>
       )}
 
+      <div className="flex items-center justify-between rounded-xl border border-(--border) p-4">
+        <div className="flex flex-col">
+          <span className="font-medium">Comparar outros meios</span>
+
+          <span className="text-xs text-(--text-muted)">
+            Exibir comparação de emissões
+          </span>
+        </div>
+
+        <input
+          type="checkbox"
+          checked={compareTransport}
+          onChange={(e) => setCompareTransport(e.target.checked)}
+          className="h-5 w-5"
+        />
+      </div>
+
+      {compareTransport && <TransportComparisonSelector />}
+
       <div
         aria-live="assertive"
-        id="calculator-error-region"
-        className="min-h-5 text-xs font-medium text-red-500 transition-all duration-200"
+        className="min-h-5 text-xs font-medium text-red-500"
       >
-        {activeError && (
-          <span className="flex items-center gap-1 animate-shake">
-            ⚠️ {activeError}
-          </span>
-        )}
+        {activeError && <span>⚠️ {activeError}</span>}
       </div>
 
       <Button
@@ -192,11 +299,12 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
         fullWidth
         disabled={isCalculating}
         data-testid="form-submit-button"
-        className="flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+        className="flex items-center justify-center gap-2"
       >
         <Calculator
           className={`h-4 w-4 ${isCalculating ? 'animate-spin' : ''}`}
         />
+
         {isCalculating ? 'Calculando impacto...' : 'Calcular Emissões'}
       </Button>
     </form>
