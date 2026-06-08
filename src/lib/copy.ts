@@ -24,8 +24,9 @@ export interface CopyStrings {
 }
 
 export const copy: CopyStrings = {
-  h1: 'Descubra o impacto da sua viagem',
-  subtitle: 'Calcule emissões de CO2 e escolha rotas mais sustentáveis',
+  h1: 'Descubra o impacto ambiental da sua viagem',
+  subtitle:
+    'Calcule emissões de CO2, compare meios de transporte e escolha rotas mais sustentáveis',
   labels: {
     simple: 'Modo Simples',
     custom: 'Modo Personalizado',

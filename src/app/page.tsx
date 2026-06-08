@@ -4,18 +4,9 @@ import { InteractiveMap } from '@/components/molecules';
 import CalculatorForm from '@/components/organisms/CalculatorForm';
 import ResultSection from '@/components/organisms/ResultSection';
 import { copy } from '@/lib/copy';
-import { CalculatorInputs } from '@/schemas/calculator';
+import { CalculatorInputs, calculatorSchema } from '@/schemas/calculator';
 import { useTripStore } from '@/stores/useTripStore';
-
-async function fetchTripEmissions(payload: CalculatorInputs) {
-  const response = await fetch('/api/calculate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-  if (!response.ok) throw new Error('Failed to calculate');
-  return response.json();
-}
+import { calculateTripEmissions } from '@/lib/services/calculatorService';
 
 export default function Home() {
   const { results, setResults, currentTransport } = useTripStore();
@@ -23,7 +14,8 @@ export default function Home() {
   const handleCalculateTrip = async (data: CalculatorInputs) => {
     useTripStore.setState({ isCalculating: true, errorMessage: null });
     try {
-      const emissionsResult = await fetchTripEmissions(data);
+      const validated = calculatorSchema.parse(data);
+      const emissionsResult = calculateTripEmissions(validated);
       setResults(emissionsResult);
     } catch (error) {
       useTripStore.setState({
