@@ -29,14 +29,20 @@ const MapCenterUpdater = dynamic(
 );
 
 interface InteractiveMapProps {
-  target: 'origin' | 'destination';
+  target?: 'origin' | 'destination';
 }
 
 export const InteractiveMap: React.FC<InteractiveMapProps> = ({ target }) => {
   const markerRef = useRef<L.Marker>(null);
   const providerRef = useRef(new NominatimProvider());
   const { customIcon } = useMapIcon();
-  const { position, initialCenter } = useMapPosition(target);
+  const selectedLocationTarget = useTripStore(
+    (state) => state.selectedLocationTarget,
+  );
+
+  const effectiveTarget = selectedLocationTarget || target || 'origin';
+
+  const { position, initialCenter } = useMapPosition(effectiveTarget);
   const setOrigin = useTripStore((state) => state.setOrigin);
   const setDestination = useTripStore((state) => state.setDestination);
 
@@ -56,7 +62,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({ target }) => {
         longitude: lng,
       };
 
-      if (target === 'origin') {
+      if (effectiveTarget === 'origin') {
         setOrigin(updatedLocation);
       } else {
         setDestination(updatedLocation);

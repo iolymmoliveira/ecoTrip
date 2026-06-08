@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Calculator } from 'lucide-react';
@@ -76,6 +76,24 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
   }, [mode, setValue]);
 
   useEffect(() => {
+    if (origin) {
+      setValue('origin', origin);
+      clearErrors('origin');
+    } else {
+      setValue('origin', null);
+    }
+  }, [origin, setValue, clearErrors]);
+
+  useEffect(() => {
+    if (destination) {
+      setValue('destination', destination);
+      clearErrors('destination');
+    } else {
+      setValue('destination', null);
+    }
+  }, [destination, setValue, clearErrors]);
+
+  useEffect(() => {
     if (passengers > transportRule.maxPassengers) {
       setPassengers(transportRule.maxPassengers);
       setValue('passengers', transportRule.maxPassengers);
@@ -88,39 +106,45 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
     setValue,
   ]);
 
-  const handleOriginSelect = (
-    address: string,
-    coords: {
-      lat: number;
-      lng: number;
+  const handleOriginSelect = useCallback(
+    (
+      address: string,
+      coords: {
+        lat: number;
+        lng: number;
+      },
+    ) => {
+      const originData = {
+        address,
+        latitude: coords.lat,
+        longitude: coords.lng,
+      };
+      setOrigin(originData);
+      setValue('origin', originData);
+      clearErrors('origin');
     },
-  ) => {
-    const originData = {
-      address,
-      latitude: coords.lat,
-      longitude: coords.lng,
-    };
-    setOrigin(originData);
-    setValue('origin', originData);
-    clearErrors('origin');
-  };
+    [setOrigin, setValue, clearErrors],
+  );
 
-  const handleDestinationSelect = (
-    address: string,
-    coords: {
-      lat: number;
-      lng: number;
+  const handleDestinationSelect = useCallback(
+    (
+      address: string,
+      coords: {
+        lat: number;
+        lng: number;
+      },
+    ) => {
+      const destinationData = {
+        address,
+        latitude: coords.lat,
+        longitude: coords.lng,
+      };
+      setDestination(destinationData);
+      setValue('destination', destinationData);
+      clearErrors('destination');
     },
-  ) => {
-    const destinationData = {
-      address,
-      latitude: coords.lat,
-      longitude: coords.lng,
-    };
-    setDestination(destinationData);
-    setValue('destination', destinationData);
-    clearErrors('destination');
-  };
+    [setDestination, setValue, clearErrors],
+  );
 
   const onSubmit = async (data: FormOutput) => {
     try {
@@ -269,10 +293,8 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
 
       <div className="flex items-center justify-between rounded-xl border border-(--border) p-4">
         <div className="flex flex-col">
-          <span className="font-medium">Comparar outros meios</span>
-
-          <span className="text-xs text-(--text-muted)">
-            Exibir comparação de emissões
+          <span className="font-medium">
+            Comparar outros meios de transporte
           </span>
         </div>
 
