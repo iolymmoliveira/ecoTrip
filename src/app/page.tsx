@@ -2,6 +2,7 @@
 
 import { InteractiveMap } from '@/components/molecules';
 import CalculatorForm from '@/components/organisms/CalculatorForm';
+import { HeroSection } from '@/components/organisms/HeroSection';
 import ResultSection from '@/components/organisms/ResultSection';
 import { copy } from '@/lib/copy';
 import { CalculatorInputs, calculatorSchema } from '@/schemas/calculator';
@@ -33,29 +34,49 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col flex-1 items-center justify-center w-full max-w-4xl mx-auto p-4 gap-6">
-      <div className="w-full">
-        <InteractiveMap target="origin" />
-      </div>
+    <>
+      <HeroSection
+        title={copy.hero.title}
+        subtitle={copy.hero.subtitle}
+        ctaPrimaryDesktop={copy.hero.ctaPrimaryDesktop}
+        ctaPrimaryMobile={copy.hero.ctaPrimaryMobile}
+        ctaSecondary={copy.hero.ctaSecondary}
+        calculatorSectionId="calculadora"
+        comparisonSectionId="comparativos"
+      />
 
-      <section className="w-full rounded-2xl border border-(--border) bg-(--bg-card) p-6 shadow-sm">
-        <CalculatorForm onCalculate={handleCalculateTrip} />
-      </section>
+      <div className="flex flex-col flex-1 items-center justify-center w-full max-w-4xl mx-auto p-4 gap-6">
+        <div className="w-full">
+          <InteractiveMap target="origin" />
+        </div>
 
-      {results && (
-        <section className="w-full rounded-2xl border border-(--border) bg-(--bg-card) p-6 shadow-sm">
-          <ResultSection
-            totalEmissions={results.totalEmissions}
-            perCapitaEmissions={results.perCapitaEmissions}
-            impactLevel={getImpactLevel(results.perCapitaEmissions)}
-            treesToOffset={results.trees}
-            comparisons={results.transportEmissions}
-            currentTransport={currentTransport}
-            distance={results.distance}
-            formulaUsed={results.formulaUsed}
-          />
+        <section
+          id="calculadora"
+          className="w-full rounded-2xl border border-(--border) bg-(--bg-card) p-6 shadow-sm scroll-mt-20"
+          aria-label="Calculadora de emissões de CO₂"
+        >
+          <CalculatorForm onCalculate={handleCalculateTrip} />
         </section>
-      )}
-    </div>
+
+        {results && (
+          <section
+            id="comparativos"
+            className="w-full rounded-2xl border border-(--border) bg-(--bg-card) p-6 shadow-sm scroll-mt-20"
+            aria-label="Comparativo de emissões por transporte"
+          >
+            <ResultSection
+              totalEmissions={results.totalEmissions}
+              perCapitaEmissions={results.perCapitaEmissions}
+              impactLevel={getImpactLevel(results.perCapitaEmissions)}
+              treesToOffset={results.trees}
+              comparisons={results.transportEmissions}
+              currentTransport={currentTransport}
+              distance={results.distance}
+              formulaUsed={results.formulaUsed}
+            />
+          </section>
+        )}
+      </div>
+    </>
   );
 }
