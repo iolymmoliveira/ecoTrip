@@ -15,8 +15,8 @@ export const calculatorSchema = z
     weightPerPerson: z.number().optional(),
     luggageWeight: z.number().optional(),
     fuelType: z.string().optional(),
-    currentTransport: z.string(),
-    compareTransport: z.boolean(),
+    currentTransport: z.string().optional(),
+    compareTransport: z.boolean().optional(),
     comparisonTransports: z.array(z.string()).optional(),
     distanceOverride: z.number().optional(),
   })

@@ -2,6 +2,7 @@
 
 import { InteractiveMap } from '@/components/molecules';
 import CalculatorForm from '@/components/organisms/CalculatorForm';
+import ResultSection from '@/components/organisms/ResultSection';
 import { copy } from '@/lib/copy';
 import { CalculatorInputs } from '@/schemas/calculator';
 import { useTripStore } from '@/stores/useTripStore';
@@ -17,7 +18,7 @@ async function fetchTripEmissions(payload: CalculatorInputs) {
 }
 
 export default function Home() {
-  const { results, setResults } = useTripStore();
+  const { results, setResults, currentTransport } = useTripStore();
 
   const handleCalculateTrip = async (data: CalculatorInputs) => {
     useTripStore.setState({ isCalculating: true, errorMessage: null });
@@ -33,6 +34,12 @@ export default function Home() {
     }
   };
 
+  const getImpactLevel = (emissions: number) => {
+    if (emissions < 50) return 'low';
+    if (emissions < 200) return 'medium';
+    return 'high';
+  };
+
   return (
     <div className="flex flex-col flex-1 items-center justify-center w-full max-w-4xl mx-auto p-4 gap-6">
       <div className="w-full">
@@ -44,16 +51,17 @@ export default function Home() {
       </section>
 
       {results && (
-        <section className="w-full animate-fadeIn p-4 bg-green-50 rounded-xl text-green-800 border border-green-200">
-          <p className="font-semibold">
-            {copy.result.main.replace('{co2Kg}', results.co2Kg.toString())}
-          </p>
-          <p className="text-sm opacity-90 mt-1">
-            {copy.result.equivalent.replace(
-              '{trees}',
-              results.trees.toString(),
-            )}
-          </p>
+        <section className="w-full rounded-2xl border border-(--border) bg-(--bg-card) p-6 shadow-sm">
+          <ResultSection
+            totalEmissions={results.totalEmissions}
+            perCapitaEmissions={results.perCapitaEmissions}
+            impactLevel={getImpactLevel(results.perCapitaEmissions)}
+            treesToOffset={results.trees}
+            comparisons={results.transportEmissions}
+            currentTransport={currentTransport}
+            distance={results.distance}
+            formulaUsed={results.formulaUsed}
+          />
         </section>
       )}
     </div>

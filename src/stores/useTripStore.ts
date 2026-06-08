@@ -26,6 +26,10 @@ interface TripResult {
     truck: number;
     ship: number;
   };
+  distance: number;
+  totalEmissions: number;
+  perCapitaEmissions: number;
+  formulaUsed: string;
 }
 
 interface TripState {
