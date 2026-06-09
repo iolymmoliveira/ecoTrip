@@ -1,14 +1,15 @@
 'use client';
 
 import { Button } from '@/components/atoms/Button';
+import { copy } from '@/lib/constants/copy';
 import { useTripStore } from '@/stores/useTripStore';
 
 export const CalculatorModeSelector = () => {
   const { mode, setMode } = useTripStore();
 
   const options = [
-    { value: 'simple', label: 'Simples' },
-    { value: 'custom', label: 'Personalizado' },
+    { value: 'simple', label: copy.labels.modes.simple },
+    { value: 'custom', label: copy.labels.modes.custom },
   ] as const;
 
   return (

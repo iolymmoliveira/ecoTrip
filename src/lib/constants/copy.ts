@@ -22,15 +22,11 @@ export interface EducationCopy {
 export interface CopyStrings {
   hero: HeroCopy;
   labels: {
-    simple: string;
-    custom: string;
-    description: string;
+    modes: {
+      simple: string;
+      custom: string;
+    };
   };
-  result: {
-    main: string;
-    equivalent: string;
-  };
-  emptyState: string;
   error: string;
   seo: {
     title: string;
@@ -55,16 +51,11 @@ export const copy: CopyStrings = {
     quickStatsSectionTitle: 'Resultados Rápidos',
   },
   labels: {
-    simple: 'Modo Simples',
-    custom: 'Modo Personalizado',
-    description:
-      'Modo Simples usa estimativas padrão; Personalizado permite ajustar passageiros e distância.',
+    modes: {
+      simple: 'Simples',
+      custom: 'Personalizado',
+    },
   },
-  result: {
-    main: 'Sua viagem emite {co2Kg} kg de CO2',
-    equivalent: 'Isso equivale a {trees} árvores por mês (estimado)',
-  },
-  emptyState: 'Insira origem e destino para calcular as emissões.',
   error:
     'Não conseguimos calcular a rota. Verifique origem/destino e tente novamente.',
   seo: {
