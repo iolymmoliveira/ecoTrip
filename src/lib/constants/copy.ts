@@ -7,6 +7,18 @@ export interface HeroCopy {
   quickStatsSectionTitle: string;
 }
 
+export interface EducationCopy {
+  sectionTitle: string;
+  cards: {
+    id: string;
+    title: string;
+    description: string;
+    imageSrc?: string;
+    imageAlt?: string;
+    href?: string;
+  }[];
+}
+
 export interface CopyStrings {
   hero: HeroCopy;
   labels: {
@@ -29,6 +41,7 @@ export interface CopyStrings {
     github: string;
     linkedIn: string;
   };
+  education: EducationCopy;
 }
 
 export const copy: CopyStrings = {
@@ -63,5 +76,27 @@ export const copy: CopyStrings = {
   links: {
     github: 'https://github.com/iolymmoliveira',
     linkedIn: 'https://www.linkedin.com/in/iolymmoliveira',
+  },
+  education: {
+    sectionTitle: 'Conscientização Ambiental',
+    cards: [
+      {
+        id: 'card-co2',
+        title: 'Por que reduzir CO₂?',
+        description:
+          'Entenda como pequenos desvios nas suas rotas diárias ajudam a combater o aquecimento global e a melhorar a qualidade do ar nas cidades.',
+        imageSrc: '/globe.png',
+        imageAlt: 'Ilustração vetorial do planeta Terra cercado por árvores.',
+      },
+      {
+        id: 'card-transport',
+        title: 'Transportes mais sustentáveis',
+        description:
+          'Descubra o impacto real de cada modal — de trens a veículos elétricos — e aprenda a priorizar opções de menor pegada ecológica.',
+        imageSrc: '/transport.png',
+        imageAlt:
+          'Ilustração de um ônibus ecológico verde em uma estrada com um selo de aprovação, simboliza a escolha do transporte coletivo como uma opção sustentável e validada para a redução de emissões.',
+      },
+    ],
   },
 };

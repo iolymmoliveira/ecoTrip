@@ -9,6 +9,7 @@ import { CalculatorInputs, calculatorSchema } from '@/schemas/calculator';
 import { useTripStore } from '@/stores/useTripStore';
 import { calculateTripEmissions } from '@/services/calculatorService';
 import { logger, trackBusinessEvent } from '@/lib/observability';
+import { EducationSection } from '@/components/organisms/EducationSection';
 
 export default function Home() {
   const { results, setResults, currentTransport } = useTripStore();
@@ -86,6 +87,8 @@ export default function Home() {
             />
           </section>
         )}
+
+        <EducationSection data={copy.education} />
       </div>
     </>
   );
