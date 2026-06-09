@@ -5,7 +5,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary';
   fullWidth?: boolean;
   asChild?: boolean;
-  'data-testid'?: string; // Garantindo a tipagem do testid de forma explícita
+  'data-testid'?: string;
 }
 
 export const Button: React.FC<ButtonProps> = ({

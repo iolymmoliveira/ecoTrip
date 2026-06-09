@@ -1,4 +1,4 @@
-export const themeScript = `
+export const themeScriptCode = `
   try {
     const savedTheme = localStorage.getItem('ecotrip-theme');
 

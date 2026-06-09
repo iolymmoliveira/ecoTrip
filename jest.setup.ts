@@ -13,3 +13,10 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: jest.fn(),
   })),
 });
+
+jest.mock('@sentry/nextjs', () => ({
+  init: jest.fn(),
+  captureException: jest.fn(),
+  captureMessage: jest.fn(),
+  captureEvent: jest.fn().mockImplementation((event) => event),
+}));

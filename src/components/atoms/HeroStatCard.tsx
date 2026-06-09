@@ -13,7 +13,7 @@ export const HeroStatCard: React.FC<HeroStatCardProps> = ({
 }) => {
   return (
     <article
-      className="flex flex-col gap-1 px-4 py-3 min-w-[130px] rounded-xl border border-(--border) bg-(--bg-card)/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow duration-200"
+      className="flex flex-col gap-1 px-4 py-3 min-w-32.5 rounded-xl border border-(--border) bg-(--bg-card)/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow duration-200"
       aria-label={`${label}: ${value}`}
     >
       <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-(--text-muted)">

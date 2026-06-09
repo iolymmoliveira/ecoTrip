@@ -28,7 +28,7 @@ export const HeroQuickStats: React.FC<HeroQuickStatsProps> = ({
         aria-label={sectionTitle}
       >
         {stats.map((stat) => (
-          <div key={stat.label} role="listitem" className="flex-shrink-0">
+          <div key={stat.label} role="listitem" className="shrink-0">
             <HeroStatCard
               icon={stat.icon}
               label={stat.label}

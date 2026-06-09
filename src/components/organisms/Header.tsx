@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ThemeToggle } from '../atoms/ThemeToggle';
 import { GitHubIcon } from '../atoms/icons/GitHubIcon';
-import { copy } from '@/lib/copy';
+import { copy } from '@/lib/constants/copy';
 
 export const Header: React.FC = () => {
   return (
