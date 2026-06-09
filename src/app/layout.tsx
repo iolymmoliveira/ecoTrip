@@ -9,12 +9,14 @@ import { Header } from '@/components/organisms/Header';
 import { Footer } from '@/components/organisms/Footer';
 import { ThemeScript } from '@/components/atoms/ThemeScript';
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : 'http://localhost:3000');
+
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NODE_ENV === 'production'
-      ? 'https://seu-dominio-da-vercel.vercel.app' // TODO: Substituir pela URL final ao publicar
-      : 'http://localhost:3000',
-  ),
+  metadataBase: new URL(siteUrl),
   title: copy.seo.title,
   description: copy.seo.description,
   openGraph: {
