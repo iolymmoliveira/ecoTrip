@@ -2,6 +2,7 @@
 
 import { LocationSuggestion } from '@/services/locations/types';
 import { locationService } from '@/services/LocationService';
+import { logger, trackBusinessEvent } from '@/lib/observability';
 import { useState, useEffect, useRef } from 'react';
 
 interface UsePlaceAutocompleteProps {
@@ -41,6 +42,7 @@ export const usePlaceAutocomplete = ({
 
     try {
       setIsSearching(true);
+      trackBusinessEvent('autocomplete.search', { query, countryCodes });
       const data = await locationService.getSuggestions(query, countryCodes);
 
       if (isMountedRef.current) {
@@ -48,7 +50,10 @@ export const usePlaceAutocomplete = ({
         setShowSuggestions(data.length > 0);
       }
     } catch (error) {
-      console.error('Erro na orquestração de busca:', error);
+      logger.error('Erro na orquestração de busca', error, {
+        query,
+        countryCodes,
+      });
       if (isMountedRef.current) setSuggestions([]);
     } finally {
       if (isMountedRef.current) setIsSearching(false);

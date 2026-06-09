@@ -1,5 +1,6 @@
 import { CalculatorInputs } from '@/schemas/calculator';
 import { TransportType } from '@/stores/useTripStore';
+import { traceExecutionSync } from '@/lib/observability/tracing';
 
 export interface CalculationResult {
   distance: number;
@@ -102,127 +103,129 @@ export function calculateHaversineDistance(
 export function calculateTripEmissions(
   inputs: CalculatorInputs,
 ): CalculationResult {
-  const mode = inputs.mode;
-  const transportType = inputs.currentTransport as TransportType;
-  const passengers = Math.max(1, inputs.passengers || 1);
-  let distance = 0;
-  let formulaUsed = '';
+  return traceExecutionSync('calculator.calculateTripEmissions', () => {
+    const mode = inputs.mode;
+    const transportType = inputs.currentTransport as TransportType;
+    const passengers = Math.max(1, inputs.passengers || 1);
+    let distance = 0;
+    let formulaUsed = '';
 
-  if (inputs.distanceOverride && inputs.distanceOverride > 0) {
-    distance = inputs.distanceOverride;
-    formulaUsed = 'Distância Manual';
-  } else if (inputs.origin && inputs.destination) {
-    distance = calculateHaversineDistance(
-      inputs.origin.latitude,
-      inputs.origin.longitude,
-      inputs.destination.latitude,
-      inputs.destination.longitude,
-    );
-    formulaUsed = 'Haversine';
-  }
-
-  const calculateSingle = (type: TransportType, isMainTransport = false) => {
-    const factorConfig = TRANSPORT_FACTORS[type];
-    if (factorConfig.baseFactor === 0) {
-      return { total: 0, perCapita: 0 };
+    if (inputs.distanceOverride && inputs.distanceOverride > 0) {
+      distance = inputs.distanceOverride;
+      formulaUsed = 'Distância Manual';
+    } else if (inputs.origin && inputs.destination) {
+      distance = calculateHaversineDistance(
+        inputs.origin.latitude,
+        inputs.origin.longitude,
+        inputs.destination.latitude,
+        inputs.destination.longitude,
+      );
+      formulaUsed = 'Haversine';
     }
 
-    if (mode === 'simple' || !isMainTransport) {
-      if (factorConfig.isColetivo) {
-        if (type === 'car' || type === 'motorcycle') {
+    const calculateSingle = (type: TransportType, isMainTransport = false) => {
+      const factorConfig = TRANSPORT_FACTORS[type];
+      if (factorConfig.baseFactor === 0) {
+        return { total: 0, perCapita: 0 };
+      }
+
+      if (mode === 'simple' || !isMainTransport) {
+        if (factorConfig.isColetivo) {
+          if (type === 'car' || type === 'motorcycle') {
+            const total = distance * factorConfig.baseFactor;
+            const perCapita = total / passengers;
+            return { total, perCapita };
+          } else {
+            const perCapita = distance * factorConfig.baseFactor;
+            const total = perCapita * passengers;
+            return { total, perCapita };
+          }
+        } else {
           const total = distance * factorConfig.baseFactor;
           const perCapita = total / passengers;
           return { total, perCapita };
-        } else {
-          const perCapita = distance * factorConfig.baseFactor;
-          const total = perCapita * passengers;
-          return { total, perCapita };
         }
       } else {
-        const total = distance * factorConfig.baseFactor;
-        const perCapita = total / passengers;
-        return { total, perCapita };
+        let baseFactor = factorConfig.baseFactor;
+
+        if (factorConfig.fuelMultipliers && inputs.fuelType) {
+          const multiplier = factorConfig.fuelMultipliers[inputs.fuelType];
+          if (multiplier !== undefined) {
+            baseFactor *= multiplier;
+          }
+        }
+
+        let totalEmissions = 0;
+        if (factorConfig.degradationFactor) {
+          let additionalWeight = 0;
+
+          if (type === 'plane' || type === 'ship') {
+            const personWeight = inputs.weightPerPerson ?? 70;
+            const luggage = inputs.luggageWeight ?? 0;
+            additionalWeight = passengers * personWeight + luggage;
+          } else if (type === 'truck') {
+            additionalWeight = (passengers - 1) * 70;
+          } else if (type === 'car' || type === 'motorcycle') {
+            additionalWeight = (passengers - 1) * 70;
+          }
+
+          totalEmissions =
+            distance *
+            (baseFactor + additionalWeight * factorConfig.degradationFactor);
+        } else {
+          if (
+            factorConfig.isColetivo &&
+            type !== 'car' &&
+            type !== 'motorcycle'
+          ) {
+            totalEmissions = distance * baseFactor * passengers;
+          } else {
+            totalEmissions = distance * baseFactor;
+          }
+        }
+
+        const perCapitaEmissions = totalEmissions / passengers;
+        return { total: totalEmissions, perCapita: perCapitaEmissions };
       }
+    };
+
+    const { total, perCapita } = calculateSingle(transportType, true);
+
+    if (mode === 'custom') {
+      formulaUsed += ' + Degradabilidade';
     } else {
-      let baseFactor = factorConfig.baseFactor;
-
-      if (factorConfig.fuelMultipliers && inputs.fuelType) {
-        const multiplier = factorConfig.fuelMultipliers[inputs.fuelType];
-        if (multiplier !== undefined) {
-          baseFactor *= multiplier;
-        }
-      }
-
-      let totalEmissions = 0;
-      if (factorConfig.degradationFactor) {
-        let additionalWeight = 0;
-
-        if (type === 'plane' || type === 'ship') {
-          const personWeight = inputs.weightPerPerson ?? 70;
-          const luggage = inputs.luggageWeight ?? 0;
-          additionalWeight = passengers * personWeight + luggage;
-        } else if (type === 'truck') {
-          additionalWeight = (passengers - 1) * 70;
-        } else if (type === 'car' || type === 'motorcycle') {
-          additionalWeight = (passengers - 1) * 70;
-        }
-
-        totalEmissions =
-          distance *
-          (baseFactor + additionalWeight * factorConfig.degradationFactor);
-      } else {
-        if (
-          factorConfig.isColetivo &&
-          type !== 'car' &&
-          type !== 'motorcycle'
-        ) {
-          totalEmissions = distance * baseFactor * passengers;
-        } else {
-          totalEmissions = distance * baseFactor;
-        }
-      }
-
-      const perCapitaEmissions = totalEmissions / passengers;
-      return { total: totalEmissions, perCapita: perCapitaEmissions };
+      formulaUsed += ' + Fator de Emissão Base';
     }
-  };
 
-  const { total, perCapita } = calculateSingle(transportType, true);
+    const transportEmissions = {} as Record<TransportType, number>;
+    const allTransports: TransportType[] = [
+      'car',
+      'bus',
+      'train',
+      'plane',
+      'motorcycle',
+      'walking',
+      'bicycle',
+      'truck',
+      'ship',
+    ];
 
-  if (mode === 'custom') {
-    formulaUsed += ' + Degradabilidade';
-  } else {
-    formulaUsed += ' + Fator de Emissão Base';
-  }
+    allTransports.forEach((type) => {
+      const res = calculateSingle(type, false);
+      transportEmissions[type] = parseFloat(res.perCapita.toFixed(2));
+    });
 
-  const transportEmissions = {} as Record<TransportType, number>;
-  const allTransports: TransportType[] = [
-    'car',
-    'bus',
-    'train',
-    'plane',
-    'motorcycle',
-    'walking',
-    'bicycle',
-    'truck',
-    'ship',
-  ];
+    const co2Kg = parseFloat(perCapita.toFixed(2));
+    const trees = Math.max(1, Math.ceil(co2Kg / 15));
 
-  allTransports.forEach((type) => {
-    const res = calculateSingle(type, false);
-    transportEmissions[type] = parseFloat(res.perCapita.toFixed(2));
+    return {
+      distance: parseFloat(distance.toFixed(2)),
+      totalEmissions: parseFloat(total.toFixed(2)),
+      perCapitaEmissions: co2Kg,
+      formulaUsed,
+      co2Kg,
+      trees,
+      transportEmissions,
+    };
   });
-
-  const co2Kg = parseFloat(perCapita.toFixed(2));
-  const trees = Math.max(1, Math.ceil(co2Kg / 15));
-
-  return {
-    distance: parseFloat(distance.toFixed(2)),
-    totalEmissions: parseFloat(total.toFixed(2)),
-    perCapitaEmissions: co2Kg,
-    formulaUsed,
-    co2Kg,
-    trees,
-    transportEmissions,
-  };
 }

@@ -8,6 +8,7 @@ import { copy } from '@/lib/copy';
 import { CalculatorInputs, calculatorSchema } from '@/schemas/calculator';
 import { useTripStore } from '@/stores/useTripStore';
 import { calculateTripEmissions } from '@/lib/services/calculatorService';
+import { logger, trackBusinessEvent } from '@/lib/observability';
 
 export default function Home() {
   const { results, setResults, currentTransport } = useTripStore();
@@ -18,7 +19,16 @@ export default function Home() {
       const validated = calculatorSchema.parse(data);
       const emissionsResult = calculateTripEmissions(validated);
       setResults(emissionsResult);
+      trackBusinessEvent('calculator.calculate.success', {
+        transport: currentTransport,
+        mode: validated.mode,
+        distanceOverride: Boolean(validated.distanceOverride),
+      });
     } catch (error) {
+      logger.error('Falha ao calcular emissões', error, {
+        transport: currentTransport,
+        mode: data.mode,
+      });
       useTripStore.setState({
         isCalculating: false,
         errorMessage: copy.error,

@@ -7,6 +7,7 @@ import { Calculator } from 'lucide-react';
 import { CalculatorInputs, calculatorSchema } from '@/schemas/calculator';
 import { useTripStore } from '@/stores/useTripStore';
 import { copy } from '@/lib/copy';
+import { logger, trackBusinessEvent } from '@/lib/observability';
 import { TRANSPORT_RULES, FUEL_OPTIONS } from '@/lib/constants/transports';
 import { Button } from '../atoms/Button';
 import { z } from 'zod';
@@ -147,6 +148,12 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
   );
 
   const onSubmit = async (data: FormOutput) => {
+    trackBusinessEvent('calculator.submit', {
+      currentTransport,
+      compareTransport,
+      comparisonTransports,
+    });
+
     try {
       await onCalculate({
         ...data,
@@ -154,7 +161,11 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
         compareTransport,
         comparisonTransports,
       } as CalculatorInputs);
-    } catch {
+    } catch (error) {
+      logger.error('Falha no envio do formulário de cálculo', error, {
+        currentTransport,
+        compareTransport,
+      });
       setError('root', {
         type: 'manual',
         message: copy.error,

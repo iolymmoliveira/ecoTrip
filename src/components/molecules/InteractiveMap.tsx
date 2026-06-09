@@ -4,6 +4,7 @@ import React, { useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useTripStore } from '@/stores/useTripStore';
 import { NominatimProvider } from '@/services/locations/NominatimProvider';
+import { logger, trackBusinessEvent } from '@/lib/observability';
 import { useMapIcon } from '@/hooks/useMapIcon';
 import { useMapPosition } from '@/hooks/useMapPosition';
 import { MAP_ATTRIBUTION, MAP_TILES_URL } from '@/lib/constants/map';
@@ -62,13 +63,28 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({ target }) => {
         longitude: lng,
       };
 
+      trackBusinessEvent('map.reverseGeocode.success', {
+        target: effectiveTarget,
+        lat,
+        lng,
+      });
+
       if (effectiveTarget === 'origin') {
         setOrigin(updatedLocation);
       } else {
         setDestination(updatedLocation);
       }
     } catch (error) {
-      console.error('Erro ao processar geocoding reverso no arraste:', error);
+      logger.error('Erro ao processar geocoding reverso no arraste', error, {
+        lat,
+        lng,
+        target: effectiveTarget,
+      });
+      trackBusinessEvent('map.reverseGeocode.failure', {
+        target: effectiveTarget,
+        lat,
+        lng,
+      });
     }
   };
 

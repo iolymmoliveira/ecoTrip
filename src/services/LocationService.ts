@@ -1,6 +1,7 @@
 import { GooglePlacesProvider } from './locations/GooglePlaceProvider';
 import { NominatimProvider } from './locations/NominatimProvider';
 import { LocationProvider, LocationSuggestion } from './locations/types';
+import { logger, trackExternalService } from '@/lib/observability';
 
 export class LocationService {
   private googleProvider: LocationProvider;
@@ -16,12 +17,23 @@ export class LocationService {
     countryCodes: string[],
   ): Promise<LocationSuggestion[]> {
     try {
-      return await this.googleProvider.search(query, countryCodes);
+      const suggestions = await this.googleProvider.search(query, countryCodes);
+      trackExternalService('GooglePlaces', 200, undefined, {
+        query,
+        countryCodes,
+        fallback: false,
+      });
+      return suggestions;
     } catch (error) {
-      console.warn(
+      logger.warn(
         'Google Places indisponível ou limite atingido. Acionando OpenStreetMap...',
-        error,
+        { query, countryCodes, error: String(error) },
       );
+      trackExternalService('GooglePlaces', undefined, undefined, {
+        query,
+        countryCodes,
+        fallback: true,
+      });
       return await this.fallbackProvider.search(query, countryCodes);
     }
   }

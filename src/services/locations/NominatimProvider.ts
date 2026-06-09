@@ -1,3 +1,4 @@
+import { ExternalApiError } from '@/lib/errors';
 import { LocationProvider, LocationSuggestion } from './types';
 
 export class NominatimProvider implements LocationProvider {
@@ -11,7 +12,12 @@ export class NominatimProvider implements LocationProvider {
     );
 
     if (!response.ok) {
-      throw new Error('Nominatim local API transfer failed');
+      throw new ExternalApiError(
+        'Nominatim local API transfer failed',
+        'Nominatim',
+        response.status,
+        { query, countries },
+      );
     }
 
     return response.json();
@@ -19,7 +25,14 @@ export class NominatimProvider implements LocationProvider {
 
   async reverseGeocode(lat: number, lng: number): Promise<string> {
     const response = await fetch(`/api/geocode-reverse?lat=${lat}&lng=${lng}`);
-    if (!response.ok) throw new Error('Failed to reverse geocode');
+    if (!response.ok) {
+      throw new ExternalApiError(
+        'Failed to reverse geocode',
+        'Nominatim',
+        response.status,
+        { lat, lng },
+      );
+    }
     const data = await response.json();
     return data.address;
   }
