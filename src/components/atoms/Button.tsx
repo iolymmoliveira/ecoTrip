@@ -25,7 +25,7 @@ export const Button: React.FC<ButtonProps> = ({
       className={`
         px-6 py-3 rounded-full font-medium transition-all duration-200 
         active:scale-95 disabled:opacity-50 disabled:pointer-events-none
-        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary) focus-visible:ring-offset-2
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
         ${variant === 'primary' ? 'bg-primary text-text-button' : 'bg-transparent border border-primary text-primary'}
         ${fullWidth ? 'w-full' : 'w-auto'}
         ${className}

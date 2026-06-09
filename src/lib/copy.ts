@@ -1,6 +1,14 @@
-export interface CopyStrings {
-  h1: string;
+export interface HeroCopy {
+  title: string;
   subtitle: string;
+  ctaPrimaryDesktop: string;
+  ctaPrimaryMobile: string;
+  ctaSecondary: string;
+  quickStatsSectionTitle: string;
+}
+
+export interface CopyStrings {
+  hero: HeroCopy;
   labels: {
     simple: string;
     custom: string;
@@ -24,8 +32,15 @@ export interface CopyStrings {
 }
 
 export const copy: CopyStrings = {
-  h1: 'Descubra o impacto da sua viagem',
-  subtitle: 'Calcule emissões de CO2 e escolha rotas mais sustentáveis',
+  hero: {
+    title: 'Descubra o impacto ambiental das suas viagens.',
+    subtitle:
+      'Calcule emissões de CO2, compare meios de transporte e escolha rotas mais sustentáveis',
+    ctaPrimaryDesktop: 'Calcular Agora',
+    ctaPrimaryMobile: 'Calculadora Agora',
+    ctaSecondary: 'Ver Comparativos',
+    quickStatsSectionTitle: 'Resultados Rápidos',
+  },
   labels: {
     simple: 'Modo Simples',
     custom: 'Modo Personalizado',
