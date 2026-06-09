@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Leaf } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
-import { copy } from '@/lib/copy';
+import { copy } from '@/lib/constants/copy';
 import { LinkedInIcon } from '../atoms/icons/LinkedInIcon';
 
 const MotionLink = motion.create(Link);

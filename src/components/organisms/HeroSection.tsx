@@ -90,7 +90,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             {title}
           </h1>
 
-          <div className="relative w-full aspect-[4/3] max-h-72 md:hidden">
+          <div className="relative w-full aspect-4/3 max-h-72 md:hidden">
             <Image
               src="/ecotrip.png"
               alt="Globo terrestre com rotas de viagem e calculadora EcoTrip — ilustração da ferramenta de cálculo de emissões de CO₂"

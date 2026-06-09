@@ -1,12 +1,12 @@
 import React from 'react';
 import Script from 'next/script';
-import { themeScript } from '@/lib/themeScript';
+import { themeScriptCode } from './themeScriptCode';
 
 export const ThemeScript: React.FC = () => {
   return (
     <Script
       id="theme-script"
-      dangerouslySetInnerHTML={{ __html: themeScript }}
+      dangerouslySetInnerHTML={{ __html: themeScriptCode }}
     />
   );
 };

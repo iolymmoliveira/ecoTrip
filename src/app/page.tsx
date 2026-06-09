@@ -4,10 +4,10 @@ import { InteractiveMap } from '@/components/molecules';
 import CalculatorForm from '@/components/organisms/CalculatorForm';
 import { HeroSection } from '@/components/organisms/HeroSection';
 import ResultSection from '@/components/organisms/ResultSection';
-import { copy } from '@/lib/copy';
+import { copy } from '@/lib/constants/copy';
 import { CalculatorInputs, calculatorSchema } from '@/schemas/calculator';
 import { useTripStore } from '@/stores/useTripStore';
-import { calculateTripEmissions } from '@/lib/services/calculatorService';
+import { calculateTripEmissions } from '@/services/calculatorService';
 import { logger, trackBusinessEvent } from '@/lib/observability';
 
 export default function Home() {

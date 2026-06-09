@@ -40,7 +40,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
             {title}
           </span>
           <div className="flex items-baseline gap-1 mt-1">
-            <span className="text-3xl font-extrabold tracking-tight font-bold text-(--text-main)">
+            <span className="text-3xl tracking-tight font-bold text-(--text-main)">
               {value}
             </span>
             {unit && (

@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { captureException } from '@/lib/observability';
-import { copy } from '@/lib/copy';
+import { copy } from '@/lib/constants/copy';
 
 interface ErrorProps {
   error: Error;

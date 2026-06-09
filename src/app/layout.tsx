@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import { ThemeProvider } from '@/contexts/ThemeContext';
-import { copy } from '@/lib/copy';
+import { copy } from '@/lib/constants/copy';
 import 'leaflet/dist/leaflet.css';
 import './globals.css';
 import { QueryProvider } from '@/providers/QueryProvider';

@@ -13,9 +13,6 @@ export const EmissionChart: React.FC<EmissionChartProps> = ({
   currentTransport,
 }) => {
   const maxVal = Math.max(...Object.values(comparisons), 0.1);
-
-  // Sort transport options to display them nicely
-  // We can sort them by emissions descending
   const { comparisonTransports } = useTripStore();
   const sortedOptions = [...TRANSPORT_OPTIONS]
     .map((option) => ({

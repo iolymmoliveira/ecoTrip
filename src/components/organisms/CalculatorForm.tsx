@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Calculator } from 'lucide-react';
 import { CalculatorInputs, calculatorSchema } from '@/schemas/calculator';
 import { useTripStore } from '@/stores/useTripStore';
-import { copy } from '@/lib/copy';
+import { copy } from '@/lib/constants/copy';
 import { logger, trackBusinessEvent } from '@/lib/observability';
 import { TRANSPORT_RULES, FUEL_OPTIONS } from '@/lib/constants/transports';
 import { Button } from '../atoms/Button';

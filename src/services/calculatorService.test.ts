@@ -2,7 +2,7 @@ import { CalculatorInputs } from '@/schemas/calculator';
 import {
   calculateHaversineDistance,
   calculateTripEmissions,
-} from './calculatorService';
+} from '../../services/calculatorService';
 
 describe('Calculator Service', () => {
   describe('calculateHaversineDistance', () => {

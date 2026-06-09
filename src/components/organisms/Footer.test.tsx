@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { Footer } from './Footer';
 import { ThemeProvider } from '@/contexts/ThemeContext';
-import { copy } from '@/lib/copy';
+import { copy } from '@/lib/constants/copy';
 
 describe('Footer Component', () => {
   const currentYear = new Date().getFullYear();
